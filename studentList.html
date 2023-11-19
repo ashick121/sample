@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        #studentTable {
+            width: 80%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow-x: auto; /* Enable horizontal scrolling if needed */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #d4ff00;
+            color: white;
+        }
+
+        td {
+            white-space: nowrap; /* Prevent text wrapping in cells */
+        }
+
+        .editButton, .deleteButton {
+            background-color: #008CBA;
+            color: white;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .deleteButton {
+            background-color: #f44336;
+        }
+
+        .editButton:hover, .deleteButton:hover {
+            background-color: #005580;
+        }
+        button {
+      background-color: rgb(197, 200, 243);
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+
+    button:hover {
+      background-color: rgb(216, 89, 89);
+    }
+    </style>
+</head>
+<body>
+
+    <h2>Student List</h2>
+
+    <div id="studentTable">
+        <button onclick="location.href='search.html'">search</button>
+        <!-- Student details will be displayed here -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentListBody"></tbody>
+        </table>
+    </div>
+
+   
+
+
+    <script>
+        // Fetch data from the API
+        const apiUrl = 'http://localhost:4000/getDetails'; // Replace with your actual API endpoint
+        fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add any other headers as needed
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('API Response:', data);
+    
+            // Display data in the table
+            // Display data in the table
+const studentListBody = document.getElementById('studentListBody');
+console.log(data.data)
+if (Array.isArray(data.data)) {
+    data.data.forEach(student => {
+        const row = document.createElement('tr');
+        // Set an ID for each row using the email as a unique identifier
+        row.id = `row-${student.email}`;
+
+        const columns = ['name', 'email', 'phone', 'address'];
+        columns.forEach(column => {
+            const cell = document.createElement('td');
+            cell.textContent = student[column];
+            row.appendChild(cell);
+        });
+
+        const actionCell = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('editButton');
+        editButton.addEventListener('click', () => handleEdit(student._id));
+        actionCell.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('deleteButton');
+        // Pass the email to the handleDelete function
+        deleteButton.addEventListener('click', () => handleDelete(student.email));
+        actionCell.appendChild(deleteButton);
+
+        row.appendChild(actionCell);
+
+        studentListBody.appendChild(row);
+    });
+} else {
+    console.error('Data is not an array:', data);
+    // Handle the case where data is not an array
+}
+
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            // Handle errors
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+        function handleEdit(studentId) {
+        // Redirect to the edit page with the student ID as a parameter
+        window.location.href = `edit.html?id=${studentId}`;
+    }
+
+
+
+
+
+
+
+
+
+        
+        function handleDelete(email) {
+    // Make an AJAX request to your server to trigger the delete route
+    fetch(`http://localhost:4000/delete?email=${encodeURIComponent(email)}`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status) {
+            // Optionally update your UI or show a success message
+            console.log('User deleted successfully');
+            // You may also want to remove the corresponding row from the table
+            const row = document.getElementById(`row-${email}`);
+            if (row) {
+                row.remove();
+            }
+        } else {
+            // Handle the case where the deletion was unsuccessful
+            console.error('Error deleting user:', data.msg);
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting user:', error);
+    });
+}
+
+    </script>
+    
+
+</body>
+</html>
